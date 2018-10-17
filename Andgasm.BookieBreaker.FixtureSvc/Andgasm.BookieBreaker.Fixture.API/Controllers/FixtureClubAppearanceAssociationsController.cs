@@ -2,16 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Andgasm.BookieBreaker.Data;
-using Andgasm.BookieBreaker.Database.Core.DTOs;
-using Andgasm.BookieBreaker.Models;
-using Andgasm.BookieBreaker.ServiceBus;
+using Andgasm.BookieBreaker.Fixture.Models;
+using Andgasm.BookieBreaker.Fixture.Resources;
 using Andgasm.ServiceBus;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Andgasm.BookieBreaker.SeasonParticipants.API.Controllers
+namespace Andgasm.BookieBreaker.Fixture.Controllers
 {
     [Route("api/[controller]")]
     public class FixtureClubAppearanceAssociationsController : Controller
@@ -43,7 +41,7 @@ namespace Andgasm.BookieBreaker.SeasonParticipants.API.Controllers
                     if (!_context.Fixtures.Any(x => x.Key == p.FixtureCode))
                     {
                         dochange = true;
-                        var fixture = new Fixture()
+                        var fixture = new Models.Fixture()
                         {
                             Key = p.FixtureCode,
                             SeasonKey = p.SeasonCode,
@@ -65,13 +63,12 @@ namespace Andgasm.BookieBreaker.SeasonParticipants.API.Controllers
                         dochange = true;
                         var homeassociation = new ClubFixtureAppearance()
                         {
-                            Key = p.HomeAppearance.Key,
-                            ClubKey = p.HomeAppearance.ClubKey,
-                            SeasonKey = p.HomeAppearance.SeasonKey,
-                            FixtureKey = p.HomeAppearance.FixtureKey,
-                            GoalsScored = p.HomeAppearance.GoalsScored,
-                            GoalsConceded = p.HomeAppearance.GoalsConceded,
-                            IsHomeTeam = p.HomeAppearance.IsHomeTeam
+                            ClubKey = p.HomeClubCode,
+                            SeasonKey = p.SeasonCode,
+                            FixtureKey = p.FixtureCode,
+                            GoalsScored = p.HomeGoalsScored,
+                            GoalsConceded = p.HomeGoalsConceded,
+                            IsHomeTeam = true
                         };
                         _context.ClubFixtureAppearances.Add(homeassociation);
                     }
@@ -82,19 +79,18 @@ namespace Andgasm.BookieBreaker.SeasonParticipants.API.Controllers
                         dochange = true;
                         var awayassociation = new ClubFixtureAppearance()
                         {
-                            Key = p.AwayAppearance.Key,
-                            ClubKey = p.AwayAppearance.ClubKey,
-                            SeasonKey = p.AwayAppearance.SeasonKey,
-                            FixtureKey = p.AwayAppearance.FixtureKey,
-                            GoalsScored = p.AwayAppearance.GoalsScored,
-                            GoalsConceded = p.AwayAppearance.GoalsConceded,
-                            IsHomeTeam = p.AwayAppearance.IsHomeTeam
+                            ClubKey = p.AwayClubCode,
+                            SeasonKey = p.SeasonCode,
+                            FixtureKey = p.FixtureCode,
+                            GoalsScored = p.AwayGoalsScored,
+                            GoalsConceded = p.AwayGoalsConceded,
+                            IsHomeTeam = false
                         };
                         _context.ClubFixtureAppearances.Add(awayassociation);
                     }
                 }
                 if (dochange) await _context.SaveChangesAsync();
-                return dochange;
+                return Ok();
             }
             catch (DbUpdateException pkex)
             {

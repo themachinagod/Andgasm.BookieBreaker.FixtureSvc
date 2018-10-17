@@ -1,12 +1,11 @@
-using Andgasm.BookieBreaker.Database.Core.DTOs;
 using Microsoft.EntityFrameworkCore;
 using System;
 
-namespace Andgasm.BookieBreaker.Data
+namespace Andgasm.BookieBreaker.Fixture.Models
 {
     public class FixtureDb : DbContext
     {
-        public FixtureDb() : base()
+        public FixtureDb(DbContextOptions options) : base(options)
         {
         }
 

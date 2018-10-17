@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace Andgasm.BookieBreaker.Database.Core.DTOs
+namespace Andgasm.BookieBreaker.Fixture.Models
 {
     public class Fixture
     {
