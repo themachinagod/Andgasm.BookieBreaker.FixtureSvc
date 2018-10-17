@@ -29,8 +29,8 @@ namespace Andgasm.BookieBreaker.Fixture.Controllers
         }
         #endregion
 
-        [HttpPost]
-        public async Task<IActionResult> StoreFixtureAssociations([FromBody]List<FixtureParticipantsModel> model)
+        [HttpPost(Name = "CreateClubSeasonRegistration")]
+        public async Task<IActionResult> CreateBatch([FromBody]List<FixtureParticipantsModel> model)
         {
             try
             {

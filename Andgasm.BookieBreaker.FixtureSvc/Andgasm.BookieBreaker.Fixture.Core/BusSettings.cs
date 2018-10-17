@@ -19,6 +19,6 @@ namespace Andgasm.BookieBreaker.Fixture.Core
     public class ApiSettings
     {
         public string FixturesDbApiRootKey { get; set; }
-        public string ClubSeasonRegistrationsApiPath { get; set; }
+        public string FixtureClubAppearancesApiPath { get; set; }
     }
 }
