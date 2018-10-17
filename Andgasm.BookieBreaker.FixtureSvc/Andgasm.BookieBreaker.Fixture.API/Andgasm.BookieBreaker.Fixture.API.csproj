@@ -5,10 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Startup\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Andgasm.ServiceBus" Version="0.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
