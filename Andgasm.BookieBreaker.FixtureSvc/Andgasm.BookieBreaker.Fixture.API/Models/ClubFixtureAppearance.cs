@@ -12,7 +12,7 @@ namespace Andgasm.BookieBreaker.Fixture.Models
         {
             get
             {
-                return $"{SeasonKey}-{ClubKey}";
+                return $"{SeasonKey}-{FixtureKey}-{ClubKey}";
             }
             set { }
         }

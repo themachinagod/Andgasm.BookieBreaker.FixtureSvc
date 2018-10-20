@@ -7,6 +7,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -61,7 +62,7 @@ namespace Andgasm.BookieBreaker.Fixture.Core
                 var pdate = SeasonStartDate;
                 while (pdate <= SeasonEndDate)
                 {
-                    HtmlDocument responsedoc = await ExecuteRequest(pdate.Year, pdate.Month, lastmodekey);
+                    HtmlDocument responsedoc = await ExecuteRequest(pdate.Year, GetIso8601WeekOfYear(pdate), lastmodekey);
                     if (responsedoc != null)
                     {
                         var fixtures = new List<ExpandoObject>();
@@ -70,14 +71,17 @@ namespace Andgasm.BookieBreaker.Fixture.Core
                             var fixture = CreateFixture(fx);
                             fixtures.Add(fixture);
                         }
-                        await HttpRequestFactory.Post(fixtures, _fixturesapiroot, _registrationsApiPath);
-                        _logger.LogDebug(string.Format("Stored season fixtures to database for season and period '{0}' - '{1}", SeasonCode, pdate.ToShortDateString()));
+                        if (fixtures.Count > 0)
+                        {
+                            await HttpRequestFactory.Post(fixtures, _fixturesapiroot, _registrationsApiPath);
+                            _logger.LogDebug(string.Format("Stored season fixtures to database for season and period '{0}' - '{1}", SeasonCode, pdate.ToShortDateString()));
+                        } else { _logger.LogDebug(string.Format("No seasons identified for storage for season and period '{0}' - '{1}", SeasonCode, pdate.ToShortDateString())); }
                     }
                     else
                     {
                         _logger.LogDebug(string.Format("Failed to store & commit fixtures for period '{0}' in data store.", pdate.ToShortDateString()));
                     }
-                    pdate = pdate.AddMonths(1);
+                    pdate = pdate.AddDays(7);
                 }
             };
             HarvestHelper.FinaliseTimer(_timer);
@@ -85,10 +89,9 @@ namespace Andgasm.BookieBreaker.Fixture.Core
         #endregion
 
         #region Entity Creation Helpers
-        private string CreateRequestUrl(int year, int month)
+        private string CreateRequestUrl(int year, int week)
         {
-            var mthparsed = (month.ToString().Length < 2) ? "0" + month : month.ToString();
-            return string.Format(WhoScoredConstants.TournamentsStatisticsFeedUrl, StageCode, year, month.ToString());
+            return string.Format(WhoScoredConstants.TournamentsStatisticsFeedUrl, StageCode, year, week.ToString());
         }
 
         private string CreateRefererUrl()
@@ -100,7 +103,7 @@ namespace Andgasm.BookieBreaker.Fixture.Core
         {
             var referer = CreateRefererUrl();
             var ctx = HarvestHelper.ConstructRequestContext(null, "text/html,application/xhtml+xml,image/jxr,*/*", null,
-                                                            @"euconsent=BOVozhmOVozhmABABAENBE-AAAAcd7_______9______9uz_Gv_r_f__33e8_39v_h_7_-___m_-33d4-_1vV11yPg1urfIr1NpjQ6OGsA; visid_incap_774904=3VHWR4OrQJ6JcpSUOUIzzJ40UlsBAAAAVUIPAAAAAACAaMiFAU1lv1DEH1MbjB042/jYOqYUG7V7; incap_ses_197_774904=JJddXBGQKXn3PIMs3eS7Ap8QxlsAAAAAf8t3QoOa9JJPMoXFyT3xuw==",
+                                                            @"euconsent=BOVozhmOVozhmABABAENBE-AAAAcd7_______9______9uz_Gv_r_f__33e8_39v_h_7_-___m_-33d4-_1vV11yPg1urfIr1NpjQ6OGsA; visid_incap_774904=2VHWR4OrQJ6JcpSUOUIzzJ40UlsAAAAAVkIPAAAAAACAoaaHAU1lv1DPf8Ro9mPz8n0Q33jICzaz; incap_ses_197_774904=EVvmI2u7Kz/+1NAw2eS7AuENy1sAAAAAK07VAvVpxbK2FTwKYn9eyQ==",
                                                             null, false, false, false);
             var p = await _requestmanager.MakeRequest(referer, ctx);
             if (p != null)
@@ -110,14 +113,14 @@ namespace Andgasm.BookieBreaker.Fixture.Core
             return null;
         }
 
-        private async Task<HtmlDocument> ExecuteRequest(int year, int month, string lastmodekey)
+        private async Task<HtmlDocument> ExecuteRequest(int year, int week, string lastmodekey)
         {
-            var url = CreateRequestUrl(year, month);
+            var url = CreateRequestUrl(year, week);
             var referer = CreateRefererUrl();
-            var ctx = HarvestHelper.ConstructRequestContext(lastmodekey, "text/plain,*/*;q=0.01", referer,
-                                                            @"euconsent=BOVozhmOVozhmABABAENBE-AAAAcd7_______9______9uz_Gv_r_f__33e8_39v_h_7_-___m_-33d4-_1vV11yPg1urfIr1NpjQ6OGsA; visid_incap_774904=3VHWR4OrQJ6JcpSUOUIzzJ40UlsBAAAAVUIPAAAAAACAaMiFAU1lv1DEH1MbjB042/jYOqYUG7V7; incap_ses_197_774904=JJddXBGQKXn3PIMs3eS7Ap8QxlsAAAAAf8t3QoOa9JJPMoXFyT3xuw==",
+            var ctx = HarvestHelper.ConstructRequestContext(lastmodekey, "en -GB,en;q=0.9,en-US;q=0.8,th;q=0.7", referer,
+                                                            @"euconsent=BOVozhmOVozhmABABAENBE-AAAAcd7_______9______9uz_Gv_r_f__33e8_39v_h_7_-___m_-33d4-_1vV11yPg1urfIr1NpjQ6OGsA; visid_incap_774904=2VHWR4OrQJ6JcpSUOUIzzJ40UlsAAAAAVkIPAAAAAACAoaaHAU1lv1DPf8Ro9mPz8n0Q33jICzaz; incap_ses_197_774904=EVvmI2u7Kz/+1NAw2eS7AuENy1sAAAAAK07VAvVpxbK2FTwKYn9eyQ==",
                                                             null, true, false, false);
-            var p = await _requestmanager.MakeRequest(referer, ctx);
+            var p = await _requestmanager.MakeRequest(url, ctx);
             return p;
         }
 
@@ -156,6 +159,21 @@ namespace Andgasm.BookieBreaker.Fixture.Core
                 return int.Parse(score.Split(':')[index].Replace(" ", ""));
             }
             return 0;
+        }
+
+        public static int GetIso8601WeekOfYear(DateTime time)
+        {
+            // Seriously cheat.  If its Monday, Tuesday or Wednesday, then it'll 
+            // be the same week# as whatever Thursday, Friday or Saturday are,
+            // and we always get those right
+            DayOfWeek day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(time);
+            if (day >= DayOfWeek.Monday && day <= DayOfWeek.Wednesday)
+            {
+                time = time.AddDays(3);
+            }
+
+            // Return the week of our adjusted day
+            return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
         }
         #endregion
     }

@@ -1,4 +1,5 @@
-﻿using Andgasm.ServiceBus;
+﻿using Andgasm.Http;
+using Andgasm.ServiceBus;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -50,13 +51,13 @@ namespace Andgasm.BookieBreaker.Fixture.Core
             _logger.LogDebug($"Received message: Body:{payload}");
 
             dynamic payloadvalues = JsonConvert.DeserializeObject<ExpandoObject>(payload);
-            var startyear = 2017; //payloadvalues.SeasonCode.Split('-')[1];
+            var startyear = Convert.ToInt32(payloadvalues.SeasonName.Split('-')[0]);
             _harvester.TournamentCode = payloadvalues.TournamentCode;
             _harvester.SeasonCode = payloadvalues.SeasonCode;
             _harvester.StageCode = payloadvalues.StageCode;
             _harvester.RegionCode = payloadvalues.RegionCode;
             _harvester.CountryCode = payloadvalues.CountryCode;
-            _harvester.SeasonStartDate = Convert.ToDateTime(new DateTime(startyear, 7, 1)); // hacked out for now
+            _harvester.SeasonStartDate = Convert.ToDateTime(new DateTime(startyear, 8, 1)); // hacked out for now
             _harvester.SeasonEndDate = Convert.ToDateTime(new DateTime(startyear + 1, 5, 30)); // hacked out for now
             await _harvester.Execute();
             await _newseasonBus.CompleteEvent(message.LockToken);

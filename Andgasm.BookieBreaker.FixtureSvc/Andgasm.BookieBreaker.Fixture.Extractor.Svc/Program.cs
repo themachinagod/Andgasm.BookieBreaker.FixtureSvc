@@ -8,13 +8,13 @@ namespace Andgasm.BookieBreaker.Fixture.Extractor.Svc
     {
         public static void Main(string[] args)
         {
-            Console.Title = "SeasonParticipantExtractor.Svc";
+            Console.Title = "FixtureExtractor.Svc";
             MainAsync().GetAwaiter().GetResult();
         }
 
         public static async Task MainAsync()
         {
-            Console.Title = "SeasonParticipantExtractor.Svc";
+            Console.Title = "FixtureExtractor.Svc";
             var boot = new Startup();
             await boot.Host.RunConsoleAsync();
             Console.ReadKey();
