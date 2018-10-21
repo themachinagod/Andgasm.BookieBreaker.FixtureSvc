@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2041
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Andgasm.BookieBreaker.Fixture.API", "Andgasm.BookieBreaker.Fixture.API\Andgasm.BookieBreaker.Fixture.API.csproj", "{B485C6FE-FA72-4023-981F-72F50756E8AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Andgasm.BookieBreaker.Fixture.API", "Andgasm.BookieBreaker.Fixture.API\Andgasm.BookieBreaker.Fixture.API.csproj", "{B485C6FE-FA72-4023-981F-72F50756E8AC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Andgasm.BookieBreaker.Fixture.Extractor.Svc", "Andgasm.BookieBreaker.Fixture.Extractor.Svc\Andgasm.BookieBreaker.Fixture.Extractor.Svc.csproj", "{1840710A-D364-4D31-A0E9-D962B235985C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Andgasm.BookieBreaker.Fixture.Extractor.Svc", "Andgasm.BookieBreaker.Fixture.Extractor.Svc\Andgasm.BookieBreaker.Fixture.Extractor.Svc.csproj", "{1840710A-D364-4D31-A0E9-D962B235985C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Andgasm.BookieBreaker.Fixture.Core", "Andgasm.BookieBreaker.Fixture.Core\Andgasm.BookieBreaker.Fixture.Core.csproj", "{94926A2D-B098-421D-99B1-B47330718B97}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Andgasm.BookieBreaker.Fixture.Core", "Andgasm.BookieBreaker.Fixture.Core\Andgasm.BookieBreaker.Fixture.Core.csproj", "{94926A2D-B098-421D-99B1-B47330718B97}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{61F186E9-18CA-46A3-8130-A91C7CE4162C}"
 EndProject
@@ -16,9 +16,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Artifacts", "Artifacts", "{
 		..\ReadMe.md = ..\ReadMe.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Andgasm.BookieBreaker.Fixture.API.Tests", "Andgasm.BookieBreaker.Fixture.API.Tests\Andgasm.BookieBreaker.Fixture.API.Tests.csproj", "{008357BE-7E98-4486-B68A-98056F329C96}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Andgasm.BookieBreaker.Fixture.API.Tests", "Andgasm.BookieBreaker.Fixture.API.Tests\Andgasm.BookieBreaker.Fixture.API.Tests.csproj", "{008357BE-7E98-4486-B68A-98056F329C96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Andgasm.BookieBreaker.Fixture.Core.Tests", "Andgasm.BookieBreaker.Fixture.Core.Tests\Andgasm.BookieBreaker.Fixture.Core.Tests.csproj", "{D740AC76-69FB-4B4A-AE86-BBF869D8E206}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Andgasm.BookieBreaker.Fixture.Core.Tests", "Andgasm.BookieBreaker.Fixture.Core.Tests\Andgasm.BookieBreaker.Fixture.Core.Tests.csproj", "{D740AC76-69FB-4B4A-AE86-BBF869D8E206}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

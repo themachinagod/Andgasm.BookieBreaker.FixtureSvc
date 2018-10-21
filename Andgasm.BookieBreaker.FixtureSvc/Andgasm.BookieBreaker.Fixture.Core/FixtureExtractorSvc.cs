@@ -1,4 +1,4 @@
-﻿using Andgasm.Http;
+﻿using Andgasm.BookieBreaker.Harvest.WhoScored;
 using Andgasm.ServiceBus;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -26,13 +26,8 @@ namespace Andgasm.BookieBreaker.Fixture.Core
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            //using (var init = new CookieInitialiser(FiddlerVersion.Fiddler2))
-            //{
-            //    init.Execute();
-            //    _harvester.CookieString = init.RealisedCookie;
-            //}
-
             _logger.LogDebug("FixtureExtractorSvc.Svc is registering to new season events...");
+            _harvester.CookieString = await CookieInitialiser.GetCookieFromRootDirectives();
             _newseasonBus.RecieveEvents(ExceptionReceivedHandler, ProcessMessagesAsync);
             _logger.LogDebug("FixtureExtractorSvc.Svc is now listening for new season events");
             await Task.CompletedTask;

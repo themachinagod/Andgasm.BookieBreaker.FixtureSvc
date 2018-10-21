@@ -103,7 +103,7 @@ namespace Andgasm.BookieBreaker.Fixture.Core
         {
             var referer = CreateRefererUrl();
             var ctx = HarvestHelper.ConstructRequestContext(null, "text/html,application/xhtml+xml,image/jxr,*/*", null,
-                                                            @"euconsent=BOVozhmOVozhmABABAENBE-AAAAcd7_______9______9uz_Gv_r_f__33e8_39v_h_7_-___m_-33d4-_1vV11yPg1urfIr1NpjQ6OGsA; visid_incap_774904=2VHWR4OrQJ6JcpSUOUIzzJ40UlsAAAAAVkIPAAAAAACAoaaHAU1lv1DPf8Ro9mPz8n0Q33jICzaz; incap_ses_197_774904=EVvmI2u7Kz/+1NAw2eS7AuENy1sAAAAAK07VAvVpxbK2FTwKYn9eyQ==",
+                                                            CookieString,
                                                             null, false, false, false);
             var p = await _requestmanager.MakeRequest(referer, ctx);
             if (p != null)
@@ -118,9 +118,10 @@ namespace Andgasm.BookieBreaker.Fixture.Core
             var url = CreateRequestUrl(year, week);
             var referer = CreateRefererUrl();
             var ctx = HarvestHelper.ConstructRequestContext(lastmodekey, "en -GB,en;q=0.9,en-US;q=0.8,th;q=0.7", referer,
-                                                            @"euconsent=BOVozhmOVozhmABABAENBE-AAAAcd7_______9______9uz_Gv_r_f__33e8_39v_h_7_-___m_-33d4-_1vV11yPg1urfIr1NpjQ6OGsA; visid_incap_774904=2VHWR4OrQJ6JcpSUOUIzzJ40UlsAAAAAVkIPAAAAAACAoaaHAU1lv1DPf8Ro9mPz8n0Q33jICzaz; incap_ses_197_774904=EVvmI2u7Kz/+1NAw2eS7AuENy1sAAAAAK07VAvVpxbK2FTwKYn9eyQ==",
+                                                            CookieString,
                                                             null, true, false, false);
             var p = await _requestmanager.MakeRequest(url, ctx);
+            CookieString = ctx.Cookies["Cookie"];
             return p;
         }
 

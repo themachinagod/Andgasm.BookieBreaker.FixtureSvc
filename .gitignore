@@ -259,3 +259,6 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/Andgasm.BookieBreaker.FixtureSvc/Andgasm.BookieBreaker.Fixture.API/Properties/PublishProfiles/FixtureSvcAPI - Web Deploy.pubxml
+/Andgasm.BookieBreaker.FixtureSvc/Andgasm.BookieBreaker.Fixture.Extractor.Svc/Settings.job
+/Andgasm.BookieBreaker.FixtureSvc/Andgasm.BookieBreaker.Fixture.Extractor.Svc/Properties/PublishProfiles/FixtureSvc-Extractor - Web Deploy.pubxml
