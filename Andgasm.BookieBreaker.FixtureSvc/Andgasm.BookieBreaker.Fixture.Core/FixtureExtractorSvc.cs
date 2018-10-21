@@ -16,6 +16,7 @@ namespace Andgasm.BookieBreaker.Fixture.Core
         static ILogger<FixtureExtractorSvc> _logger;
         static FixtureHarvester _harvester;
         static IBusClient _newseasonBus;
+        static IBusClient _newseasonperiodBus;
 
         public FixtureExtractorSvc(ILogger<FixtureExtractorSvc> logger, FixtureHarvester harvester, IBusClient newseasonBus)
         {
@@ -26,10 +27,13 @@ namespace Andgasm.BookieBreaker.Fixture.Core
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogDebug("FixtureExtractorSvc.Svc is registering to new season events...");
+            _logger.LogDebug("FixtureExtractorSvc is registering to new season events...");
+            _logger.LogDebug("FixtureExtractorSvc is registering to new season periods events...");
             _harvester.CookieString = await CookieInitialiser.GetCookieFromRootDirectives();
-            _newseasonBus.RecieveEvents(ExceptionReceivedHandler, ProcessMessagesAsync);
-            _logger.LogDebug("FixtureExtractorSvc.Svc is now listening for new season events");
+            _newseasonBus.RecieveEvents(ExceptionReceivedHandler, ProcessSeasonMessageAsync);
+            _newseasonperiodBus.RecieveEvents(ExceptionReceivedHandler, ProcessSeasonPeriodMessageAsync);
+            _logger.LogDebug("FixtureExtractorSvc is now listening for new season events");
+            _logger.LogDebug("FixtureExtractorSvc is now listening for new season period events");
             await Task.CompletedTask;
         }
 
@@ -40,7 +44,7 @@ namespace Andgasm.BookieBreaker.Fixture.Core
             _logger.LogDebug("FixtureExtractorSvc.Svc has successfully shut down...");
         }
 
-        static async Task ProcessMessagesAsync(IBusEvent message, CancellationToken c)
+        static async Task ProcessSeasonPeriodMessageAsync(IBusEvent message, CancellationToken c)
         {
             var payload = Encoding.UTF8.GetString(message.Body);
             _logger.LogDebug($"Received message: Body:{payload}");
@@ -52,9 +56,34 @@ namespace Andgasm.BookieBreaker.Fixture.Core
             _harvester.StageCode = payloadvalues.StageCode;
             _harvester.RegionCode = payloadvalues.RegionCode;
             _harvester.CountryCode = payloadvalues.CountryCode;
-            _harvester.SeasonStartDate = Convert.ToDateTime(new DateTime(startyear, 8, 1)); // hacked out for now
-            _harvester.SeasonEndDate = Convert.ToDateTime(new DateTime(startyear + 1, 5, 30)); // hacked out for now
+            _harvester.RequestPeriod = payloadvalues.SeasonPeriod;
             await _harvester.Execute();
+            await _newseasonBus.CompleteEvent(message.LockToken);
+        }
+
+        static async Task ProcessSeasonMessageAsync(IBusEvent message, CancellationToken c)
+        {
+            var payload = Encoding.UTF8.GetString(message.Body);
+            _logger.LogDebug($"Received message: Body:{payload}");
+
+            dynamic payloadvalues = JsonConvert.DeserializeObject<ExpandoObject>(payload);
+            var startdate = new DateTime(Convert.ToInt32(payloadvalues.SeasonName.Split('-')[0]), 8, 1);
+            var enddate = new DateTime(Convert.ToInt32(payloadvalues.SeasonName.Split('-')[0]) + 1, 5, 31);
+            var pdate = startdate;
+            while (pdate <= enddate)
+            {
+                dynamic jsonpayload = new ExpandoObject();
+                jsonpayload.TournamentCode = payloadvalues.TournamentCode;
+                jsonpayload.SeasonCode = payloadvalues.SeasonCode;
+                jsonpayload.StageCode = payloadvalues.StageCode;
+                jsonpayload.RegionCode = payloadvalues.RegionCode;
+                jsonpayload.CountryCode = payloadvalues.CountryCode;
+                jsonpayload.SeasonName = payloadvalues.SeasonName;
+                jsonpayload.SeasonPeriod = pdate;
+                var buspayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(jsonpayload));
+                await _newseasonperiodBus.SendEvent(new BusEventBase(buspayload));
+                pdate = pdate.AddDays(7);
+            }
             await _newseasonBus.CompleteEvent(message.LockToken);
         }
 

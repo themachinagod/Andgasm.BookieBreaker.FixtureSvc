@@ -29,8 +29,7 @@ namespace Andgasm.BookieBreaker.Fixture.Core
         public string TournamentCode { get; set; }
         public string RegionCode { get; set; }
         public string CountryCode { get; set; }
-        public DateTime SeasonStartDate { get; set; }
-        public DateTime SeasonEndDate { get; set; }
+        public DateTime RequestPeriod { get; set; }
         #endregion
 
         #region Contructors
@@ -59,29 +58,25 @@ namespace Andgasm.BookieBreaker.Fixture.Core
             {
                 _timer.Start();
                 var lastmodekey = await DetermineLastModeKey();
-                var pdate = SeasonStartDate;
-                while (pdate <= SeasonEndDate)
+                var pdate = RequestPeriod;
+                HtmlDocument responsedoc = await ExecuteRequest(pdate.Year, GetIso8601WeekOfYear(pdate), lastmodekey);
+                if (responsedoc != null)
                 {
-                    HtmlDocument responsedoc = await ExecuteRequest(pdate.Year, GetIso8601WeekOfYear(pdate), lastmodekey);
-                    if (responsedoc != null)
+                    var fixtures = new List<ExpandoObject>();
+                    foreach (var fx in ParseFixturesFromResponse(responsedoc))
                     {
-                        var fixtures = new List<ExpandoObject>();
-                        foreach (var fx in ParseFixturesFromResponse(responsedoc))
-                        {
-                            var fixture = CreateFixture(fx);
-                            fixtures.Add(fixture);
-                        }
-                        if (fixtures.Count > 0)
-                        {
-                            await HttpRequestFactory.Post(fixtures, _fixturesapiroot, _registrationsApiPath);
-                            _logger.LogDebug(string.Format("Stored season fixtures to database for season and period '{0}' - '{1}", SeasonCode, pdate.ToShortDateString()));
-                        } else { _logger.LogDebug(string.Format("No seasons identified for storage for season and period '{0}' - '{1}", SeasonCode, pdate.ToShortDateString())); }
+                        var fixture = CreateFixture(fx);
+                        fixtures.Add(fixture);
                     }
-                    else
+                    if (fixtures.Count > 0)
                     {
-                        _logger.LogDebug(string.Format("Failed to store & commit fixtures for period '{0}' in data store.", pdate.ToShortDateString()));
-                    }
-                    pdate = pdate.AddDays(7);
+                        await HttpRequestFactory.Post(fixtures, _fixturesapiroot, _registrationsApiPath);
+                        _logger.LogDebug(string.Format("Stored season fixtures to database for season and period '{0}' - '{1}", SeasonCode, pdate.ToShortDateString()));
+                    } else { _logger.LogDebug(string.Format("No seasons identified for storage for season and period '{0}' - '{1}", SeasonCode, pdate.ToShortDateString())); }
+                }
+                else
+                {
+                    _logger.LogDebug(string.Format("Failed to store & commit fixtures for period '{0}' in data store.", pdate.ToShortDateString()));
                 }
             };
             HarvestHelper.FinaliseTimer(_timer);
