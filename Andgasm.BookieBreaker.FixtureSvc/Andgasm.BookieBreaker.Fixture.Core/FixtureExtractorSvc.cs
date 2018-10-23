@@ -18,11 +18,12 @@ namespace Andgasm.BookieBreaker.Fixture.Core
         static IBusClient _newseasonBus;
         static IBusClient _newseasonperiodBus;
 
-        public FixtureExtractorSvc(ILogger<FixtureExtractorSvc> logger, FixtureHarvester harvester, IBusClient newseasonBus)
+        public FixtureExtractorSvc(ILogger<FixtureExtractorSvc> logger, FixtureHarvester harvester, Func<string, IBusClient> busfactory)
         {
             _harvester = harvester;
             _logger = logger;
-            _newseasonBus = newseasonBus;
+            _newseasonBus = busfactory("NewSeason");
+            _newseasonperiodBus = busfactory("NewSeasonPeriod");
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -58,7 +59,7 @@ namespace Andgasm.BookieBreaker.Fixture.Core
             _harvester.CountryCode = payloadvalues.CountryCode;
             _harvester.RequestPeriod = payloadvalues.SeasonPeriod;
             await _harvester.Execute();
-            await _newseasonBus.CompleteEvent(message.LockToken);
+            await _newseasonperiodBus.CompleteEvent(message.LockToken);
         }
 
         static async Task ProcessSeasonMessageAsync(IBusEvent message, CancellationToken c)

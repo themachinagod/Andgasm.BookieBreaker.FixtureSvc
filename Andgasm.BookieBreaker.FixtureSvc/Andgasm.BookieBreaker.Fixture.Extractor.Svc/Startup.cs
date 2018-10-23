@@ -62,15 +62,25 @@ namespace Andgasm.BookieBreaker.Fixture.Extractor.Svc
                                                      Convert.ToInt32(Configuration["MaxRequestsPerSecond"]));
                 });
                 
-
-                services.AddSingleton(sp =>
+                services.AddTransient<Func<string, IBusClient>>(serviceProvider => key =>
                 {
-                    return ServiceBusFactory.GetBus(Enum.Parse<BusHost>(Configuration.GetSection("ServiceBus")["ServiceBusHost"]),
-                                                                        Configuration.GetSection("ServiceBus")["ServiceBusConnectionString"],
-                                                                        Configuration.GetSection("ServiceBus")["NewSeasonTopicName"],
-                                                                        Configuration.GetSection("ServiceBus")["NewSeasonSubscriptionName"]);
-                });
+                    switch (key)
+                    {
+                        case "NewSeasonPeriod":
+                            return ServiceBusFactory.GetBus(Enum.Parse<BusHost>(Configuration.GetSection("ServiceBus")["ServiceBusHost"]),
+                                                                               Configuration.GetSection("ServiceBus")["ServiceBusConnectionString"],
+                                                                               Configuration.GetSection("ServiceBus")["NewSeasonPeriodTopicName"],
+                                                                               Configuration.GetSection("ServiceBus")["NewSeasonPeriodSubscriptionName"]);
+                        case "NewSeason":
+                            return ServiceBusFactory.GetBus(Enum.Parse<BusHost>(Configuration.GetSection("ServiceBus")["ServiceBusHost"]),
+                                                                               Configuration.GetSection("ServiceBus")["ServiceBusConnectionString"],
+                                                                               Configuration.GetSection("ServiceBus")["NewSeasonTopicName"],
+                                                                               Configuration.GetSection("ServiceBus")["NewSeasonSubscriptionName"]);
+                        default:
+                            throw new InvalidOperationException("Specified bus type does not exist!");
+                    }
 
+                });
                 services.AddScoped<IHostedService, FixtureExtractorSvc>();
 
 
