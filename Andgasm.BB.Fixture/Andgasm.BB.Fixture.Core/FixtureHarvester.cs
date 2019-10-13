@@ -91,7 +91,7 @@ namespace Andgasm.BB.Fixture.Core
 
         private string CreateRefererUrl()
         {
-            return string.Format(WhoScoredConstants.FixturesUrl, RegionCode, TournamentCode, SeasonCode, StageCode);
+            return string.Format(WhoScoredConstants.SeasonsUrl, RegionCode, TournamentCode, SeasonCode);
         }
 
         private async Task<string> DetermineLastModeKey()
@@ -103,7 +103,7 @@ namespace Andgasm.BB.Fixture.Core
             var p = await _requestmanager.MakeRequest(referer, ctx);
             if (p != null)
             {
-                return GetLastModeKey(p.DocumentNode.InnerText);
+                return GetLastModeKey(p.DocumentNode.InnerHtml);
             }
             return null;
         }

@@ -58,6 +58,7 @@ namespace Andgasm.BB.Fixture.Core
             _harvester.RegionCode = payloadvalues.RegionCode;
             _harvester.CountryCode = payloadvalues.CountryCode;
             _harvester.RequestPeriod = payloadvalues.SeasonPeriod;
+            _harvester.CookieString = await CookieInitialiser.GetCookieFromRootDirectives();
             await _harvester.Execute();
             await _newseasonperiodBus.CompleteEvent(message.LockToken);
         }
@@ -88,15 +89,18 @@ namespace Andgasm.BB.Fixture.Core
             await _newseasonBus.CompleteEvent(message.LockToken);
         }
 
-        static Task ExceptionReceivedHandler(IExceptionArgs exceptionReceivedEventArgs)
+        static async Task ExceptionReceivedHandler(IExceptionArgs exceptionReceivedEventArgs)
         {
             _logger.LogDebug($"Message handler encountered an exception {exceptionReceivedEventArgs.Exception}.");
+            _logger.LogDebug($"Pausing service for 10s!");
+            await Task.Delay(10000);
+
             var context = exceptionReceivedEventArgs.Exception;
             _logger.LogDebug("Exception context for troubleshooting:");
             _logger.LogDebug($"- Message: {context.Message}");
             _logger.LogDebug($"- Stack: {context.StackTrace}");
             _logger.LogDebug($"- Source: {context.Source}");
-            return Task.CompletedTask;
+            return;
         }
     }
 }
