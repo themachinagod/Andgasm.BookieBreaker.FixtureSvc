@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Andgasm.BookieBreaker.Fixture.Models;
-using Andgasm.BookieBreaker.Fixture.Resources;
+using Andgasm.BB.Fixture.Models;
+using Andgasm.BB.Fixture.Resources;
 using Andgasm.ServiceBus;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Andgasm.BookieBreaker.Fixture.Controllers
+namespace Andgasm.BB.Fixture.Controllers
 {
     [Route("api/[controller]")]
     public class FixtureClubAppearanceAssociationsController : Controller

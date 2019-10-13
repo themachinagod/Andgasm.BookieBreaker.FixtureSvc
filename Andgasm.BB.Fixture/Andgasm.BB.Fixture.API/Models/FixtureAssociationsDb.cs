@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 
-namespace Andgasm.BookieBreaker.Fixture.Models
+namespace Andgasm.BB.Fixture.Models
 {
     public class FixtureDb : DbContext
     {

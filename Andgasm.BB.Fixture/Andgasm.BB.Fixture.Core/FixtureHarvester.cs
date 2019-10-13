@@ -1,4 +1,4 @@
-﻿using Andgasm.BookieBreaker.Harvest;
+﻿using Andgasm.BB.Harvest;
 using Andgasm.Http;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
@@ -11,7 +11,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Andgasm.BookieBreaker.Fixture.Core
+namespace Andgasm.BB.Fixture.Core
 {
     public class FixtureHarvester : DataHarvest
     {

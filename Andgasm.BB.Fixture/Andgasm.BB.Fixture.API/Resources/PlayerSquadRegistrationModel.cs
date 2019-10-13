@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Andgasm.BookieBreaker.Fixture.Resources
+namespace Andgasm.BB.Fixture.Resources
 {
     public class FixtureParticipantsModel
     {

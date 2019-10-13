@@ -2,7 +2,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace Andgasm.BookieBreaker.Fixture.Extractor.Svc
+namespace Andgasm.BB.Fixture.Extractor.Svc
 {
     class Program
     {

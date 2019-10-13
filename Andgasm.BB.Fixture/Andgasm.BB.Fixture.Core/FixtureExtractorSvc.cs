@@ -1,4 +1,4 @@
-﻿using Andgasm.BookieBreaker.Harvest.WhoScored;
+﻿using Andgasm.BB.Harvest;
 using Andgasm.ServiceBus;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Andgasm.BookieBreaker.Fixture.Core
+namespace Andgasm.BB.Fixture.Core
 {
     public class FixtureExtractorSvc : IHostedService
     {

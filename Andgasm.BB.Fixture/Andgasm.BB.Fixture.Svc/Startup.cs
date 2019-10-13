@@ -1,5 +1,5 @@
-﻿using Andgasm.BookieBreaker.Fixture.Core;
-using Andgasm.BookieBreaker.Harvest;
+﻿using Andgasm.BB.Fixture.Core;
+using Andgasm.BB.Harvest;
 using Andgasm.ServiceBus;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 
-namespace Andgasm.BookieBreaker.Fixture.Extractor.Svc
+namespace Andgasm.BB.Fixture.Extractor.Svc
 {
     public class Startup
     {

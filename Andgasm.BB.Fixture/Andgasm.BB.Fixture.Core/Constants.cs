@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Andgasm.BookieBreaker.Fixture.Core
+namespace Andgasm.BB.Fixture.Core
 {
     public static class Constants
     {

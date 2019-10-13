@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 
-namespace Andgasm.BookieBreaker.Fixture.API
+namespace Andgasm.BB.Fixture.API
 {
     public class Program
     {

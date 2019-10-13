@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Andgasm.BookieBreaker.Fixture.Core
+﻿namespace Andgasm.BB.Fixture.Core
 {
     public class BusSettings
     {
