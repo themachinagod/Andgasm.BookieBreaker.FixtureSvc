@@ -1,0 +1,1 @@
+dotnet Andgasm.BB.Fixture.Svc.dll %*

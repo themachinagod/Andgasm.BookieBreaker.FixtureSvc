@@ -14,7 +14,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.1.1" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Andgasm.BookieBreaker.Fixture.Core\Andgasm.BookieBreaker.Fixture.Core.csproj" />
+    <ProjectReference Include="..\Andgasm.BB.Fixture.Core\Andgasm.BB.Fixture.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json">
