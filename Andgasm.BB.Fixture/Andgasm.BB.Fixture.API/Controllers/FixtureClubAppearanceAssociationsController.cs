@@ -29,6 +29,21 @@ namespace Andgasm.BB.Fixture.Controllers
         }
         #endregion
 
+        [HttpGet(Name = "GetAllFixtures")]
+        public async Task<IActionResult> GetAll()
+        {
+            var d = await _context.Fixtures.Select(x => new FixtureParticipantsModel()
+            {
+                AwayClubCode = x.AwayClubCode,
+                FinalScore = x.FinalScore,
+                FixtureCode = x.FixtureCode,
+                HomeClubCode = x.HomeClubCode,
+                KickOffTime = x.KickOffTime,
+                SeasonCode = x.SeasonKey,
+            }).ToListAsync();
+            return Ok(d);
+        }
+
         [HttpPost(Name = "CreateClubSeasonRegistration")]
         public async Task<IActionResult> CreateBatch([FromBody]List<FixtureParticipantsModel> model)
         {
