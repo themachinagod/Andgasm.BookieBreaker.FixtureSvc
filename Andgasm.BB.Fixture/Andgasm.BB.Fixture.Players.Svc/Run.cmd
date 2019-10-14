@@ -1,0 +1,1 @@
+dotnet Andgasm.BB.PlayerAppearance.Svc.dll %*

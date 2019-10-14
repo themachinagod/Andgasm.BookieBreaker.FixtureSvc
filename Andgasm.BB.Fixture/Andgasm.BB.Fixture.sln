@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2041
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29326.143
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Andgasm.BB.Fixture.API", "Andgasm.BB.Fixture.API\Andgasm.BB.Fixture.API.csproj", "{B485C6FE-FA72-4023-981F-72F50756E8AC}"
 EndProject
@@ -19,6 +19,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Andgasm.BB.Fixture.API.Tests", "Andgasm.BB.Fixture.API.Tests\Andgasm.BB.Fixture.API.Tests.csproj", "{008357BE-7E98-4486-B68A-98056F329C96}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Andgasm.BB.Fixture.Core.Tests", "Andgasm.BB.Fixture.Core.Tests\Andgasm.BB.Fixture.Core.Tests.csproj", "{D740AC76-69FB-4B4A-AE86-BBF869D8E206}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Andgasm.BB.Fixture.Players.Svc", "Andgasm.BB.Fixture.Players.Svc\Andgasm.BB.Fixture.Players.Svc.csproj", "{9ADF3326-33B6-4828-8FC4-3BBE78CF4645}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,6 +48,10 @@ Global
 		{D740AC76-69FB-4B4A-AE86-BBF869D8E206}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D740AC76-69FB-4B4A-AE86-BBF869D8E206}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D740AC76-69FB-4B4A-AE86-BBF869D8E206}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9ADF3326-33B6-4828-8FC4-3BBE78CF4645}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9ADF3326-33B6-4828-8FC4-3BBE78CF4645}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9ADF3326-33B6-4828-8FC4-3BBE78CF4645}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9ADF3326-33B6-4828-8FC4-3BBE78CF4645}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

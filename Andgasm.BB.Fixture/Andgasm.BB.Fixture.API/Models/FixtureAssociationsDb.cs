@@ -11,6 +11,7 @@ namespace Andgasm.BB.Fixture.Models
 
         public DbSet<Fixture> Fixtures { get; set; }
         public DbSet<ClubFixtureAppearance> ClubFixtureAppearances { get; set; }
+        public DbSet<PlayerFixtureAppearance> PlayerFixtureAppearances { get; set; }
 
         public void SetModified(object entity)
         {
