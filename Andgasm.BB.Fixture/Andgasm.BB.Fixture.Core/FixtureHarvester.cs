@@ -24,11 +24,11 @@ namespace Andgasm.BB.Fixture.Core
         #endregion
 
         #region Properties
-        public string StageCode { get; set; }
-        public string SeasonCode { get; set; }
-        public string TournamentCode { get; set; }
-        public string RegionCode { get; set; }
-        public string CountryCode { get; set; }
+        public string StageKey { get; set; }
+        public string SeasonKey { get; set; }
+        public string TournamentKey { get; set; }
+        public string RegionKey { get; set; }
+        public string CountryKey { get; set; }
         public DateTime RequestPeriod { get; set; }
         #endregion
 
@@ -71,8 +71,8 @@ namespace Andgasm.BB.Fixture.Core
                     if (fixtures.Count > 0)
                     {
                         await HttpRequestFactory.Post(fixtures, _fixturesapiroot, _registrationsApiPath);
-                        _logger.LogDebug(string.Format("Stored season fixtures to database for season and period '{0}' - '{1}", SeasonCode, pdate.ToShortDateString()));
-                    } else { _logger.LogDebug(string.Format("No seasons identified for storage for season and period '{0}' - '{1}", SeasonCode, pdate.ToShortDateString())); }
+                        _logger.LogDebug(string.Format("Stored season fixtures to database for season and period '{0}' - '{1}", SeasonKey, pdate.ToShortDateString()));
+                    } else { _logger.LogDebug(string.Format("No seasons identified for storage for season and period '{0}' - '{1}", SeasonKey, pdate.ToShortDateString())); }
                 }
                 else
                 {
@@ -86,12 +86,12 @@ namespace Andgasm.BB.Fixture.Core
         #region Entity Creation Helpers
         private string CreateRequestUrl(int year, int week)
         {
-            return string.Format(WhoScoredConstants.TournamentsStatisticsFeedUrl, StageCode, year, week.ToString());
+            return string.Format(WhoScoredConstants.TournamentsStatisticsFeedUrl, StageKey, year, week.ToString());
         }
 
         private string CreateRefererUrl()
         {
-            return string.Format(WhoScoredConstants.SeasonsUrl, RegionCode, TournamentCode, SeasonCode);
+            return string.Format(WhoScoredConstants.SeasonsUrl, RegionKey, TournamentKey, SeasonKey);
         }
 
         private async Task<string> DetermineLastModeKey()
@@ -134,11 +134,11 @@ namespace Andgasm.BB.Fixture.Core
             fixture.FinalScore = fixturedata[10].ToString();
             fixture.HomeClubCode = fixturedata[4].ToString();
             fixture.AwayClubCode = fixturedata[7].ToString();
-            fixture.SeasonCode = SeasonCode;
-            fixture.CountryCode = CountryCode;
+            fixture.SeasonCode = SeasonKey;
+            fixture.CountryCode = CountryKey;
             fixture.FixtureCode = fixturedata[0].ToString();
-            fixture.TournamentCode = TournamentCode;
-            fixture.RegionCode = RegionCode;
+            fixture.TournamentCode = TournamentKey;
+            fixture.RegionCode = RegionKey;
             fixture.HomeGoalsScored = ParseGoalsFromScore(true, fixture.FinalScore);
             fixture.HomeGoalsConceded = ParseGoalsFromScore(false, fixture.FinalScore);
             fixture.AwayGoalsScored = ParseGoalsFromScore(false, fixture.FinalScore);

@@ -52,11 +52,11 @@ namespace Andgasm.BB.Fixture.Core
 
             dynamic payloadvalues = JsonConvert.DeserializeObject<ExpandoObject>(payload);
             var startyear = Convert.ToInt32(payloadvalues.SeasonName.Split('-')[0]);
-            _harvester.TournamentCode = payloadvalues.TournamentCode;
-            _harvester.SeasonCode = payloadvalues.SeasonCode;
-            _harvester.StageCode = payloadvalues.StageCode;
-            _harvester.RegionCode = payloadvalues.RegionCode;
-            _harvester.CountryCode = payloadvalues.CountryCode;
+            _harvester.TournamentKey = payloadvalues.TournamentKey;
+            _harvester.SeasonKey = payloadvalues.SeasonKey;
+            _harvester.StageKey = payloadvalues.StageKey;
+            _harvester.RegionKey = payloadvalues.RegionKey;
+            _harvester.CountryKey = payloadvalues.CountryKey;
             _harvester.RequestPeriod = payloadvalues.SeasonPeriod;
             _harvester.CookieString = await CookieInitialiser.GetCookieFromRootDirectives();
             await _harvester.Execute();
@@ -75,11 +75,11 @@ namespace Andgasm.BB.Fixture.Core
             while (pdate <= enddate)
             {
                 dynamic jsonpayload = new ExpandoObject();
-                jsonpayload.TournamentCode = payloadvalues.TournamentCode;
-                jsonpayload.SeasonCode = payloadvalues.SeasonCode;
-                jsonpayload.StageCode = payloadvalues.StageCode;
-                jsonpayload.RegionCode = payloadvalues.RegionCode;
-                jsonpayload.CountryCode = payloadvalues.CountryCode;
+                jsonpayload.TournamentCode = payloadvalues.TournamentKey;
+                jsonpayload.SeasonCode = payloadvalues.SeasonKey;
+                jsonpayload.StageCode = payloadvalues.StageKey;
+                jsonpayload.RegionCode = payloadvalues.RegionKey;
+                jsonpayload.CountryCode = payloadvalues.CountryKey;
                 jsonpayload.SeasonName = payloadvalues.SeasonName;
                 jsonpayload.SeasonPeriod = pdate;
                 var buspayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(jsonpayload));
