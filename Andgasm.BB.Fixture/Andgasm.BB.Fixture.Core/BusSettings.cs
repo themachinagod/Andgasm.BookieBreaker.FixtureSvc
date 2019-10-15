@@ -16,5 +16,6 @@
     {
         public string FixturesDbApiRootKey { get; set; }
         public string FixtureClubAppearancesApiPath { get; set; }
+        public string FixturePlayerAppearancesApiPath { get; set; }
     }
 }

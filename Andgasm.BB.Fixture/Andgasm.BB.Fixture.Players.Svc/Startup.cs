@@ -55,7 +55,7 @@ namespace Andgasm.BB.Fixture.Extractor.Svc
                     .AddConsole()
                     .SetMinimumLevel(LogLevel.Debug));
 
-                services.AddTransient(typeof(FixtureHarvester));
+                services.AddTransient(typeof(FixturePlayerHarvester));
                 services.AddSingleton((ctx) =>
                 {
                     return new HarvestRequestManager(ctx.GetService<ILogger<HarvestRequestManager>>(), 
@@ -66,22 +66,17 @@ namespace Andgasm.BB.Fixture.Extractor.Svc
                 {
                     switch (key)
                     {
-                        case "NewSeasonPeriod":
+                        case "NewFixture":
                             return ServiceBusFactory.GetBus(Enum.Parse<BusHost>(Configuration.GetSection("ServiceBus")["ServiceBusHost"]),
                                                                                Configuration.GetSection("ServiceBus")["ServiceBusConnectionString"],
-                                                                               Configuration.GetSection("ServiceBus")["NewSeasonPeriodTopicName"],
-                                                                               Configuration.GetSection("ServiceBus")["NewSeasonPeriodSubscriptionName"]);
-                        case "NewSeason":
-                            return ServiceBusFactory.GetBus(Enum.Parse<BusHost>(Configuration.GetSection("ServiceBus")["ServiceBusHost"]),
-                                                                               Configuration.GetSection("ServiceBus")["ServiceBusConnectionString"],
-                                                                               Configuration.GetSection("ServiceBus")["NewSeasonTopicName"],
-                                                                               Configuration.GetSection("ServiceBus")["NewSeasonSubscriptionName"]);
+                                                                               Configuration.GetSection("ServiceBus")["NewFixtureTopicName"],
+                                                                               Configuration.GetSection("ServiceBus")["NewFixtureSubscriptionName"]);
                         default:
                             throw new InvalidOperationException("Specified bus type does not exist!");
                     }
 
                 });
-                services.AddScoped<IHostedService, FixtureExtractorSvc>();
+                services.AddScoped<IHostedService, FixturePlayerExtractorSvc>();
 
 
             });

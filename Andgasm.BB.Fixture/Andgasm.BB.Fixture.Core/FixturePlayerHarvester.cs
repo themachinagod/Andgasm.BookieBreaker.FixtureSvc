@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Andgasm.BB.Fixture.Core
 {
-    public class FixtureHarvester : DataHarvest
+    public class FixturePlayerHarvester : DataHarvest
     {
         #region Fields
         ILogger<FixtureHarvester> _logger;
@@ -24,22 +24,19 @@ namespace Andgasm.BB.Fixture.Core
         #endregion
 
         #region Properties
-        public string StageCode { get; set; }
-        public string SeasonCode { get; set; }
-        public string TournamentCode { get; set; }
-        public string RegionCode { get; set; }
-        public string CountryCode { get; set; }
-        public DateTime RequestPeriod { get; set; }
+        public string FixtureKey { get; set; }
+        public string TournamentKey { get; set; }
+        public string RegionKey { get; set; }
         #endregion
 
         #region Contructors
-        public FixtureHarvester(ApiSettings settings, ILogger<FixtureHarvester> logger, HarvestRequestManager requestmanager)
+        public FixturePlayerHarvester(ApiSettings settings, ILogger<FixtureHarvester> logger, HarvestRequestManager requestmanager)
         {
             _logger = logger;
             _requestmanager = requestmanager;
 
             _fixturesapiroot = settings.FixturesDbApiRootKey;
-            _registrationsApiPath = settings.FixtureClubAppearancesApiPath;
+            _registrationsApiPath = settings.FixturePlayerAppearancesApiPath;
             _settings = settings;
         }
 
@@ -57,119 +54,85 @@ namespace Andgasm.BB.Fixture.Core
             if (CanExecute())
             {
                 _timer.Start();
-                var lastmodekey = await DetermineLastModeKey();
-                var pdate = RequestPeriod;
-                HtmlDocument responsedoc = await ExecuteRequest(pdate.Year, GetIso8601WeekOfYear(pdate), lastmodekey);
+                JObject jsondata = null;
+                HtmlDocument responsedoc = await ExecuteRequest();
                 if (responsedoc != null)
                 {
-                    var fixtures = new List<ExpandoObject>();
-                    foreach (var fx in ParseFixturesFromResponse(responsedoc))
+                    var playerapps = new List<ExpandoObject>();
+                    jsondata = CleanJsonData(responsedoc);
+                    playerapps.AddRange(CreatePlayerAppearances(jsondata, true));
+                    playerapps.AddRange(CreatePlayerAppearances(jsondata, false));
+                    if (playerapps.Count > 0)
                     {
-                        var fixture = CreateFixture(fx);
-                        fixtures.Add(fixture);
+                        await HttpRequestFactory.Post(playerapps, _fixturesapiroot, _registrationsApiPath);
+                        _logger.LogDebug(string.Format("Stored & comitted fixture player appearances for fixture '{0}' in data store.", FixtureKey));
                     }
-                    if (fixtures.Count > 0)
-                    {
-                        await HttpRequestFactory.Post(fixtures, _fixturesapiroot, _registrationsApiPath);
-                        _logger.LogDebug(string.Format("Stored season fixtures to database for season and period '{0}' - '{1}", SeasonCode, pdate.ToShortDateString()));
-                    } else { _logger.LogDebug(string.Format("No seasons identified for storage for season and period '{0}' - '{1}", SeasonCode, pdate.ToShortDateString())); }
                 }
                 else
                 {
-                    _logger.LogDebug(string.Format("Failed to store & commit fixtures for period '{0}' in data store.", pdate.ToShortDateString()));
+                    _logger.LogDebug(string.Format("Failed to store & commit player appearances for fixture '{0}'", FixtureKey));
                 }
-            };
-            HarvestHelper.FinaliseTimer(_timer);
+                HarvestHelper.FinaliseTimer(_timer);
+            }
         }
         #endregion
 
         #region Entity Creation Helpers
-        private string CreateRequestUrl(int year, int week)
+        private string CreateUrl()
         {
-            return string.Format(WhoScoredConstants.TournamentsStatisticsFeedUrl, StageCode, year, week.ToString());
+            return string.Format(WhoScoredConstants.MatchesUrl, FixtureKey);
         }
 
         private string CreateRefererUrl()
         {
-            return string.Format(WhoScoredConstants.SeasonsUrl, RegionCode, TournamentCode, SeasonCode);
+            // TODO: constant!!
+            return ($"https://www.whoscored.com/Regions/{RegionKey}/Tournaments/{TournamentKey}/");
         }
 
-        private async Task<string> DetermineLastModeKey()
+        private async Task<HtmlDocument> ExecuteRequest()
         {
-            var referer = CreateRefererUrl();
-            var ctx = HarvestHelper.ConstructRequestContext(null, "text/html,application/xhtml+xml,image/jxr,*/*", null,
-                                                            CookieString,
-                                                            null, false, false, false);
-            var p = await _requestmanager.MakeRequest(referer, ctx);
-            if (p != null)
-            {
-                return GetLastModeKey(p.DocumentNode.InnerHtml);
-            }
-            return null;
-        }
-
-        private async Task<HtmlDocument> ExecuteRequest(int year, int week, string lastmodekey)
-        {
-            var url = CreateRequestUrl(year, week);
-            var referer = CreateRefererUrl();
-            var ctx = HarvestHelper.ConstructRequestContext(lastmodekey, "en -GB,en;q=0.9,en-US;q=0.8,th;q=0.7", referer,
-                                                            CookieString,
-                                                            null, true, false, false);
+            var url = CreateUrl();
+            var refer = CreateRefererUrl();
+            var ctx = HarvestHelper.ConstructRequestContext(null, "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8", refer, CookieString, "en-GB,en;q=0.9,en-US;q=0.8,th;q=0.7", false, true, true);
             var p = await _requestmanager.MakeRequest(url, ctx);
             CookieString = ctx.Cookies["Cookie"];
             return p;
         }
 
-        private JArray ParseFixturesFromResponse(HtmlDocument response)
+        private JObject CleanJsonData(HtmlDocument doc)
         {
-            var rawdata = response.DocumentNode.InnerHtml;
-            var jsondata = JsonConvert.DeserializeObject<JArray>(rawdata);
-            return jsondata;
+            var rawdata = doc.DocumentNode.InnerHtml;
+            var startIndex = rawdata.IndexOf("var matchCentreData = ");
+            var endIndex = rawdata.IndexOf("var matchCentreEventTypeJson =");
+            return JObject.Parse(rawdata.Substring(startIndex + 22, (endIndex - (startIndex + 22))).Replace(";", ""));
         }
 
-        private ExpandoObject CreateFixture(JToken fixturedata)
+        private List<ExpandoObject> CreatePlayerAppearances(JObject jsondata, bool ishome)
         {
-            dynamic fixture = new ExpandoObject();
-            fixture.KickOffTime = DateTime.Parse(string.Format("{0} {1}", fixturedata[2].ToString(), fixturedata[3].ToString()));
-            fixture.FinalScore = fixturedata[10].ToString();
-            fixture.HomeClubCode = fixturedata[4].ToString();
-            fixture.AwayClubCode = fixturedata[7].ToString();
-            fixture.SeasonCode = SeasonCode;
-            fixture.CountryCode = CountryCode;
-            fixture.FixtureCode = fixturedata[0].ToString();
-            fixture.TournamentCode = TournamentCode;
-            fixture.RegionCode = RegionCode;
-            fixture.HomeGoalsScored = ParseGoalsFromScore(true, fixture.FinalScore);
-            fixture.HomeGoalsConceded = ParseGoalsFromScore(false, fixture.FinalScore);
-            fixture.AwayGoalsScored = ParseGoalsFromScore(false, fixture.FinalScore);
-            fixture.AwayGoalsConceded = ParseGoalsFromScore(true, fixture.FinalScore);
-            return fixture;
-        }
-
-        private int ParseGoalsFromScore(bool hometeam, string score)
-        {
-            var index = hometeam ? 0 : 1;
-            var spl = score.Split(':');
-            if (spl.Count() == 2)
+            var homeaway = ishome ? "home" : "away";
+            var players = new List<ExpandoObject>();
+            JArray playersdata = (JArray)jsondata[homeaway]["players"];
+            foreach (var pl in playersdata)
             {
-                return int.Parse(score.Split(':')[index].Replace(" ", ""));
+                var clubcode = jsondata[homeaway]["teamId"].ToString();
+                var clubname = jsondata[homeaway]["name"].ToString();
+                var ns = CreatePlayerAppearance(clubname, clubcode, pl, ishome);
+                players.Add(ns);
             }
-            return 0;
+            return players;
         }
 
-        public static int GetIso8601WeekOfYear(DateTime time)
+        private ExpandoObject CreatePlayerAppearance(string clubname, string clubcode, JToken playerdata, bool playsforhometeam)
         {
-            // Seriously cheat.  If its Monday, Tuesday or Wednesday, then it'll 
-            // be the same week# as whatever Thursday, Friday or Saturday are,
-            // and we always get those right
-            DayOfWeek day = CultureInfo.InvariantCulture.Calendar.GetDayOfWeek(time);
-            if (day >= DayOfWeek.Monday && day <= DayOfWeek.Wednesday)
-            {
-                time = time.AddDays(3);
-            }
-
-            // Return the week of our adjusted day
-            return CultureInfo.InvariantCulture.Calendar.GetWeekOfYear(time, CalendarWeekRule.FirstFourDayWeek, DayOfWeek.Monday);
+            dynamic app = new ExpandoObject();
+            app.ClubCode = clubcode;
+            app.FixtureCode = FixtureKey;
+            app.PlayerCode = playerdata["playerId"].ToString();
+            app.PositionPlayed = playerdata["position"].ToString();
+            app.Rating = playerdata["stats"]["ratings"] != null ? (decimal)playerdata["stats"]["ratings"].Values<JProperty>().Values<int>().Average() : 0M;
+            app.Touches = playerdata["stats"]["touches"] != null ? playerdata["stats"]["touches"].Values<JProperty>().Values<int>().Count() : 0;
+            app.IsStartingEleven = playerdata["isFirstEleven"] == null ? false : Convert.ToBoolean(playerdata["isFirstEleven"].ToString());
+            return app;
         }
         #endregion
     }

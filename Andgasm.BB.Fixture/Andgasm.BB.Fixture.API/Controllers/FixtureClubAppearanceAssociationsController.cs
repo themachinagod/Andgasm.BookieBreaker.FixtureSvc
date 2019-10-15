@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Andgasm.BB.Fixture.Models;
 using Andgasm.BB.Fixture.Resources;
@@ -8,6 +10,7 @@ using Andgasm.ServiceBus;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Andgasm.BB.Fixture.Controllers
 {
@@ -34,12 +37,12 @@ namespace Andgasm.BB.Fixture.Controllers
         {
             var d = await _context.Fixtures.Select(x => new FixtureParticipantsModel()
             {
-                AwayClubCode = x.AwayClubCode,
+                FixtureKey = x.Key,
+                AwayClubKey = x.AwayClubKey,
                 FinalScore = x.FinalScore,
-                FixtureCode = x.FixtureCode,
-                HomeClubCode = x.HomeClubCode,
+                HomeClubKey = x.HomeClubKey,
                 KickOffTime = x.KickOffTime,
-                SeasonCode = x.SeasonKey,
+                SeasonKey = x.SeasonKey,
             }).ToListAsync();
             return Ok(d);
         }
@@ -53,50 +56,47 @@ namespace Andgasm.BB.Fixture.Controllers
                 bool dochange = false;
                 foreach (var p in model)
                 {
-                    if (!_context.Fixtures.Any(x => x.Key == p.FixtureCode))
+                    if (!_context.Fixtures.Any(x => x.Key == p.FixtureKey))
                     {
                         dochange = true;
                         var fixture = new Models.Fixture()
                         {
-                            Key = p.FixtureCode,
-                            SeasonKey = p.SeasonCode,
-                            FixtureCode = p.FixtureCode,
-                            HomeClubCode = p.HomeClubCode,
-                            HomeClubKey = p.HomeClubCode,
-                            AwayClubCode = p.AwayClubCode,
-                            AwayClubKey = p.AwayClubCode,
+                            Key = p.FixtureKey,
+                            SeasonKey = p.SeasonKey,
+                            HomeClubKey = p.HomeClubKey,
+                            AwayClubKey = p.AwayClubKey,
                             KickOffTime = p.KickOffTime,
                             FinalScore = p.FinalScore,
                         };
                         _context.Fixtures.Add(fixture);
-                        //await _fixturebus.SendEvent(EventFactory.BuildNewFixtureEvent(p.CountryCode, p.HomeClubCode, p.AwayClubCode, p.SeasonCode, p.FixtureCode, p.RegionCode, p.TournamentCode));
+                        await _fixturebus.SendEvent(BuildNewFixtureEvent(p.FixtureKey, p.RegionKey, p.TournamentKey));
                     }
-                    if (!_context.ClubFixtureAppearances.Any(x => x.FixtureKey == p.FixtureCode &&
-                                                                  x.ClubKey == p.HomeClubCode &&
+                    if (!_context.ClubFixtureAppearances.Any(x => x.FixtureKey == p.FixtureKey &&
+                                                                  x.ClubKey == p.HomeClubKey &&
                                                                   x.IsHomeTeam))
                     {
                         dochange = true;
                         var homeassociation = new ClubFixtureAppearance()
                         {
-                            ClubKey = p.HomeClubCode,
-                            SeasonKey = p.SeasonCode,
-                            FixtureKey = p.FixtureCode,
+                            ClubKey = p.HomeClubKey,
+                            SeasonKey = p.SeasonKey,
+                            FixtureKey = p.FixtureKey,
                             GoalsScored = p.HomeGoalsScored,
                             GoalsConceded = p.HomeGoalsConceded,
                             IsHomeTeam = true
                         };
                         _context.ClubFixtureAppearances.Add(homeassociation);
                     }
-                    if (!_context.ClubFixtureAppearances.Any(x => x.FixtureKey == p.FixtureCode &&
-                                                                  x.ClubKey == p.AwayClubCode &&
+                    if (!_context.ClubFixtureAppearances.Any(x => x.FixtureKey == p.FixtureKey &&
+                                                                  x.ClubKey == p.AwayClubKey &&
                                                                   !x.IsHomeTeam))
                     {
                         dochange = true;
                         var awayassociation = new ClubFixtureAppearance()
                         {
-                            ClubKey = p.AwayClubCode,
-                            SeasonKey = p.SeasonCode,
-                            FixtureKey = p.FixtureCode,
+                            ClubKey = p.AwayClubKey,
+                            SeasonKey = p.SeasonKey,
+                            FixtureKey = p.FixtureKey,
                             GoalsScored = p.AwayGoalsScored,
                             GoalsConceded = p.AwayGoalsConceded,
                             IsHomeTeam = false
@@ -114,6 +114,16 @@ namespace Andgasm.BB.Fixture.Controllers
 
                 return Conflict($"A primary key violation occured while saving player data: { pkex.Message }");
             }
+        }
+
+        static BusEventBase BuildNewFixtureEvent(string fixturecode, string regioncode, string tournycode)
+        {
+            dynamic jsonpayload = new ExpandoObject();
+            jsonpayload.FixtureKey = fixturecode;
+            jsonpayload.RegionKeye = regioncode;
+            jsonpayload.TournamentKey = tournycode;
+            var payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(jsonpayload));
+            return new BusEventBase(payload);
         }
     }
 }

@@ -41,11 +41,8 @@ namespace Andgasm.BB.Fixture.Controllers
                         var player = new PlayerFixtureAppearance()
                         {
                             Key = p.Key,
-                            ClubCode = p.ClubCode,
                             ClubKey = p.ClubKey,
-                            FixtureCode = p.FixtureCode,
                             FixtureKey = p.FixtureKey,
-                            PlayerCode = p.PlayerCode,
                             PlayerKey = p.PlayerKey,
                             IsStartingEleven = p.IsStartingEleven,
                             PositionPlayed = p.PositionPlayed,

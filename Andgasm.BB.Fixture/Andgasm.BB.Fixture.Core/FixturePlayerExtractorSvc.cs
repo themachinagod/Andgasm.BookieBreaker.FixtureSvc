@@ -11,82 +11,48 @@ using System.Threading.Tasks;
 
 namespace Andgasm.BB.Fixture.Core
 {
-    public class FixtureExtractorSvc : IHostedService
+    public class FixturePlayerExtractorSvc : IHostedService
     {
         static ILogger<FixtureExtractorSvc> _logger;
-        static FixtureHarvester _harvester;
-        static IBusClient _newseasonBus;
-        static IBusClient _newseasonperiodBus;
+        static FixturePlayerHarvester _harvester;
+        static IBusClient _newfixtureBus;
 
-        public FixtureExtractorSvc(ILogger<FixtureExtractorSvc> logger, FixtureHarvester harvester, Func<string, IBusClient> busfactory)
+        public FixturePlayerExtractorSvc(ILogger<FixtureExtractorSvc> logger, FixturePlayerHarvester harvester, Func<string, IBusClient> busfactory)
         {
             _harvester = harvester;
             _logger = logger;
-            _newseasonBus = busfactory("NewSeason");
-            _newseasonperiodBus = busfactory("NewSeasonPeriod");
+            _newfixtureBus = busfactory("NewFixture");
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _logger.LogDebug("FixtureExtractorSvc is registering to new season events...");
-            _logger.LogDebug("FixtureExtractorSvc is registering to new season periods events...");
+            _logger.LogDebug("FixturePlayerExtractorSvc is registering to new fixture events...");
             _harvester.CookieString = await CookieInitialiser.GetCookieFromRootDirectives();
-            _newseasonBus.RecieveEvents(ExceptionReceivedHandler, ProcessSeasonMessageAsync);
-            _newseasonperiodBus.RecieveEvents(ExceptionReceivedHandler, ProcessSeasonPeriodMessageAsync);
-            _logger.LogDebug("FixtureExtractorSvc is now listening for new season events");
-            _logger.LogDebug("FixtureExtractorSvc is now listening for new season period events");
+            _newfixtureBus.RecieveEvents(ExceptionReceivedHandler, ProcessFixtureMessageAsync);
+            //await ProcessFixtureMessageAsync(BuildNewFixtureEvent("1376044", "252", "2"), CancellationToken.None);
+            _logger.LogDebug("FixturePlayerExtractorSvc is now listening for new fixture events");
             await Task.CompletedTask;
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            _logger.LogDebug("FixtureExtractorSvc.Svc is closing...");
-            await _newseasonBus.Close();
-            _logger.LogDebug("FixtureExtractorSvc.Svc has successfully shut down...");
+            _logger.LogDebug("FixturePlayerExtractorSvc is closing...");
+            await _newfixtureBus.Close();
+            _logger.LogDebug("FixturePlayerExtractorSvc has successfully shut down...");
         }
 
-        static async Task ProcessSeasonPeriodMessageAsync(IBusEvent message, CancellationToken c)
+        static async Task ProcessFixtureMessageAsync(IBusEvent message, CancellationToken c)
         {
             var payload = Encoding.UTF8.GetString(message.Body);
             _logger.LogDebug($"Received message: Body:{payload}");
 
             dynamic payloadvalues = JsonConvert.DeserializeObject<ExpandoObject>(payload);
-            var startyear = Convert.ToInt32(payloadvalues.SeasonName.Split('-')[0]);
-            _harvester.TournamentCode = payloadvalues.TournamentCode;
-            _harvester.SeasonCode = payloadvalues.SeasonCode;
-            _harvester.StageCode = payloadvalues.StageCode;
-            _harvester.RegionCode = payloadvalues.RegionCode;
-            _harvester.CountryCode = payloadvalues.CountryCode;
-            _harvester.RequestPeriod = payloadvalues.SeasonPeriod;
+            _harvester.FixtureKey = payloadvalues.FixtureKey;
+            _harvester.RegionKey = payloadvalues.RegionKey;
+            _harvester.TournamentKey = payloadvalues.TournamentKey;
             _harvester.CookieString = await CookieInitialiser.GetCookieFromRootDirectives();
             await _harvester.Execute();
-            await _newseasonperiodBus.CompleteEvent(message.LockToken);
-        }
-
-        static async Task ProcessSeasonMessageAsync(IBusEvent message, CancellationToken c)
-        {
-            var payload = Encoding.UTF8.GetString(message.Body);
-            _logger.LogDebug($"Received message: Body:{payload}");
-
-            dynamic payloadvalues = JsonConvert.DeserializeObject<ExpandoObject>(payload);
-            var startdate = new DateTime(Convert.ToInt32(payloadvalues.SeasonName.Split('-')[0]), 8, 1);
-            var enddate = new DateTime(Convert.ToInt32(payloadvalues.SeasonName.Split('-')[0]) + 1, 5, 31);
-            var pdate = startdate;
-            while (pdate <= enddate)
-            {
-                dynamic jsonpayload = new ExpandoObject();
-                jsonpayload.TournamentCode = payloadvalues.TournamentCode;
-                jsonpayload.SeasonCode = payloadvalues.SeasonCode;
-                jsonpayload.StageCode = payloadvalues.StageCode;
-                jsonpayload.RegionCode = payloadvalues.RegionCode;
-                jsonpayload.CountryCode = payloadvalues.CountryCode;
-                jsonpayload.SeasonName = payloadvalues.SeasonName;
-                jsonpayload.SeasonPeriod = pdate;
-                var buspayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(jsonpayload));
-                await _newseasonperiodBus.SendEvent(new BusEventBase(buspayload));
-                pdate = pdate.AddDays(7);
-            }
-            await _newseasonBus.CompleteEvent(message.LockToken);
+            await _newfixtureBus.CompleteEvent(message.LockToken);
         }
 
         static async Task ExceptionReceivedHandler(IExceptionArgs exceptionReceivedEventArgs)
@@ -101,6 +67,17 @@ namespace Andgasm.BB.Fixture.Core
             _logger.LogDebug($"- Stack: {context.StackTrace}");
             _logger.LogDebug($"- Source: {context.Source}");
             return;
+        }
+
+        // scratch code to manually invoke new season - invoke from startasync to debug without bus
+        static BusEventBase BuildNewFixtureEvent(string fixturecode, string regioncode, string tournycode)
+        {
+            dynamic jsonpayload = new ExpandoObject();
+            jsonpayload.FixtureKey = fixturecode;
+            jsonpayload.RegionKey = regioncode;
+            jsonpayload.TournamentKey = tournycode;
+            var payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(jsonpayload));
+            return new BusEventBase(payload);
         }
     }
 }
