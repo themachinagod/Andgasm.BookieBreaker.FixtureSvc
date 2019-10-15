@@ -120,7 +120,7 @@ namespace Andgasm.BB.Fixture.Controllers
         {
             dynamic jsonpayload = new ExpandoObject();
             jsonpayload.FixtureKey = fixturecode;
-            jsonpayload.RegionKeye = regioncode;
+            jsonpayload.RegionKey = regioncode;
             jsonpayload.TournamentKey = tournycode;
             var payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(jsonpayload));
             return new BusEventBase(payload);
