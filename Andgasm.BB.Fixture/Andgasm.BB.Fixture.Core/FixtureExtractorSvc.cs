@@ -75,11 +75,11 @@ namespace Andgasm.BB.Fixture.Core
             while (pdate <= enddate)
             {
                 dynamic jsonpayload = new ExpandoObject();
-                jsonpayload.TournamentCode = payloadvalues.TournamentKey;
-                jsonpayload.SeasonCode = payloadvalues.SeasonKey;
-                jsonpayload.StageCode = payloadvalues.StageKey;
-                jsonpayload.RegionCode = payloadvalues.RegionKey;
-                jsonpayload.CountryCode = payloadvalues.CountryKey;
+                jsonpayload.TournamentKey = payloadvalues.TournamentKey;
+                jsonpayload.SeasonKey = payloadvalues.SeasonKey;
+                jsonpayload.StageKey = payloadvalues.StageKey;
+                jsonpayload.RegionKey = payloadvalues.RegionKey;
+                jsonpayload.CountryKey = payloadvalues.CountryKey;
                 jsonpayload.SeasonName = payloadvalues.SeasonName;
                 jsonpayload.SeasonPeriod = pdate;
                 var buspayload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(jsonpayload));
