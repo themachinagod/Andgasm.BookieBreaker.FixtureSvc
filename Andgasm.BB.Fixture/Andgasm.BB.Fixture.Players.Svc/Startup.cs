@@ -47,7 +47,7 @@ namespace Andgasm.BB.Fixture.Extractor.Svc
                     return new ApiSettings()
                     {
                         FixturesDbApiRootKey = Configuration.GetSection("API")["FixturesDbApiRootKey"],
-                        FixtureClubAppearancesApiPath = Configuration.GetSection("API")["FixtureClubAppearancesApiPath"]
+                        FixturePlayerAppearancesApiPath = Configuration.GetSection("API")["FixturePlayerAppearancesApiPath"]
                     };
                 });
 

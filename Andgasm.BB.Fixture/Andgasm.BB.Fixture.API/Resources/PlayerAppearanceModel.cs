@@ -15,10 +15,6 @@ namespace Andgasm.BB.Fixture.Resources
         public string PlayerKey { get; set; }
         public string ClubKey { get; set; }
 
-        public string PlayerCode { get; set; }
-        public string ClubCode { get; set; }
-        public string FixtureCode { get; set; }
-
         public bool IsStartingEleven { get; set; }
         public string PositionPlayed { get; set; }
         public bool IsManOfMatch { get; set; }

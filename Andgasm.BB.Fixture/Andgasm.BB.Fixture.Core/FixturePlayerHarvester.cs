@@ -125,9 +125,9 @@ namespace Andgasm.BB.Fixture.Core
         private ExpandoObject CreatePlayerAppearance(string clubname, string clubcode, JToken playerdata, bool playsforhometeam)
         {
             dynamic app = new ExpandoObject();
-            app.ClubCode = clubcode;
-            app.FixtureCode = FixtureKey;
-            app.PlayerCode = playerdata["playerId"].ToString();
+            app.ClubKey = clubcode;
+            app.FixtureKey = FixtureKey;
+            app.PlayerKey = playerdata["playerId"].ToString();
             app.PositionPlayed = playerdata["position"].ToString();
             app.Rating = playerdata["stats"]["ratings"] != null ? (decimal)playerdata["stats"]["ratings"].Values<JProperty>().Values<int>().Average() : 0M;
             app.Touches = playerdata["stats"]["touches"] != null ? playerdata["stats"]["touches"].Values<JProperty>().Values<int>().Count() : 0;
